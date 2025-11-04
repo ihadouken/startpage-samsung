@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name=”color-scheme” content=”light dark”>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startpage</title>
+    <style>
+        /* --- Doom One Colorscheme --- */
+        :root {
+            --bg: #282c34;
+            --fg: #bbc2cf;
+            --input-bg: #21252b;
+            --border: #282c34; /* Borderless */
+            /* --border: #51afef; */ /* Blue */
+            --focus-border: #46d9ff; /* Cyan */
+            --root: #98be65; /* Green */
+            --category: #c678dd; /* Magenta */
+            --link: #51afef; /* Blue */
+            --link-hover: #46d9ff; /* Cyan */
+            --tree-branch: #51afef; /* Blue */
+            --edit-plus: #98be65; /* Green */
+            --edit-minus: #ff6c6b; /* Red */
+            color-scheme: light dark;
+        }
+
+        /* --- Base Dark Mode Setup --- */
+        html, body {
+            background-color: var(--bg);
+            color: var(--fg);
+            font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
+            /* --- CHANGE --- */
+            /* Scaled down to 14.5px to counteract 110% browser zoom */
+            /* 14.5px * 1.10 = 15.95px (very close to original 16px) */
+            font-size: 14.5px;
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            /* Reverted zoom and overflow-x properties */
+        }
+
+        /* --- Search Bar --- */
+        .search-form {
+            padding: 2.5rem 1.5rem 1rem 1.5rem; /* Top, Horizontal, Bottom */
+            display: flex; /* Use flexbox to align button and input */
+        }
+
+        /* Style for the search engine toggle button */
+        #search-engine-toggle {
+            background-color: var(--input-bg);
+            color: var(--fg);
+            border: 1px solid var(--border);
+            font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
+            font-size: 1rem; /* This will be inherited by text (λ) */
+            padding: 0.75rem;
+            width: 3.5rem; /* Fixed width for the button */
+            height: 3.5rem; /* Make it square-ish */
+            border-radius: 4px 0 0 4px; /* Rounded on the left */
+            cursor: pointer;
+            flex-shrink: 0; /* Don't shrink the button */
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            
+            /* Center the icon/text inside */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Style for the SVGs inside the button */
+        #search-engine-toggle svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            fill: currentColor; /* Inherit the button's color */
+        }
+        
+        /* Specific tweak for lambda/letter character */
+        #search-engine-toggle.is-lambda {
+            font-size: 1.5rem; /* Make the λ/D/B character larger */
+            line-height: 1;
+        }
+
+        #search-engine-toggle:hover {
+            background-color: var(--bg);
+        }
+
+        #search-engine-toggle:focus {
+            outline: none; /* Focus will be handled by .search-form:focus-within */
+        }
+
+        .search-form input[type="text"] {
+            background-color: var(--input-bg);
+            color: var(--fg);
+            border: 1px solid var(--border);
+            font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            
+            flex-grow: 1; /* Input takes up remaining space */
+            width: auto;
+            
+            box-sizing: border-box; /* Ensures padding doesn't break layout */
+            
+            border-radius: 0 4px 4px 0; 
+            border-left: none; /* Remove left border to merge with button */
+            height: 3.5rem; /* Match button height */
+        }
+
+        /* --- Focus Styling --- */
+        .search-form:focus-within #search-engine-toggle,
+        .search-form:focus-within input[type="text"] {
+            border-color: var(--focus-border);
+            box-shadow: 0 0 5px rgba(70, 217, 255, 0.3); /* a soft cyan glow */
+        }
+        
+        .search-form input[type="text"]:focus {
+            outline: none;
+            box-shadow: none;
+            border-left: none; 
+        }
+
+
+        /* --- Main Content Container --- */
+        pre {
+            white-space: pre-wrap; 
+            word-wrap: break-word; /* Helps with long links */
+            padding: 0 1.5rem 2.5rem 1.5rem; 
+            margin: 0;
+            /* Allow inputs to be placed inside */
+            position: relative;
+        }
+
+        /* --- Link Styling --- */
+        a {
+            color: var(--link);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        a:hover,
+        a:focus {
+            color: var(--link-hover);
+            background-color: rgba(255, 255, 255, 0.05);
+            outline: none;
+        }
+        
+        /* --- Tree Structure Elements --- */
+        .root {
+            color: var(--root);
+            font-weight: bold;
+        }
+
+        .category {
+            color: var(--category);
+            font-weight: bold;
+        }
+
+        .tree-branch {
+            color: var(--tree-branch);
+        }
+        
+        /* --- Edit Mode --- */
+        .edit-controls {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+
+        #edit-toggle-btn, #save-toggle-btn, #cancel-edit-btn {
+            background-color: var(--input-bg);
+            color: var(--fg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            width: 3rem;
+            height: 3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #edit-toggle-btn svg, #save-toggle-btn svg, #cancel-edit-btn svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke: currentColor;
+        }
+        
+        #save-toggle-btn, #cancel-edit-btn {
+            display: none; /* Hidden by default */
+        }
+        
+        .edit-mode #save-toggle-btn,
+        .edit-mode #cancel-edit-btn {
+            display: flex;
+        }
+        
+        .edit-mode #edit-toggle-btn {
+            display: none;
+        }
+        
+        .edit-btn {
+            display: none; /* Hidden by default */
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0 0.75rem;
+            font-size: 1.1rem; /* Slightly larger */
+            font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
+            border: none;
+            background: none;
+            border-radius: 4px; /* For hover */
+            transition: background-color 0.2s ease;
+        }
+
+        .edit-btn:hover {
+            background-color: var(--input-bg);
+        }
+        
+        .edit-mode .edit-btn {
+            display: inline-block; /* Show in edit mode */
+        }
+        
+        .edit-btn-plus {
+            color: var(--edit-plus);
+        }
+        
+        .edit-btn-minus {
+            color: var(--edit-minus);
+        }
+        
+        .editable-name {
+            cursor: text;
+        }
+        
+        .edit-input {
+            /* The minimal editor style */
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--fg);
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0;
+            margin: 0;
+            width: auto; /* Size to content */
+            min-width: 1ch;
+        }
+        
+        .edit-input:focus {
+            /* Subtle cue */
+            border-bottom: 1px dotted var(--focus-border);
+            margin-bottom: -1px; /* Compensate for border */
+        }
+
+    </style>
+</head>
+<body class="">
+
+<form class="search-form" action="https://www.google.com/search" method="GET" target="_blank" rel="noopener noreferrer">
+    <button type="button" id="search-engine-toggle"></button>
+    <input type="text" id="search-input" name="q" autocomplete="off">
+</form>
+
+<!-- Edit/Save Buttons -->
+<div class="edit-controls">
+    <button id="edit-toggle-btn" title="Edit Page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+    </button>
+    <button id="cancel-edit-btn" title="Cancel Edits">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <button id="save-toggle-btn" title="Save Page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+    </button>
+</div>
+
+
+<!-- 
+  This <pre> tag is now a container.
+  The JavaScript will build the tree and inject it here.
+-->
+<pre id="tree-container"></pre>
+
+<script>
+    // ------------------------------------------------------------------
+    // 1. EDIT YOUR LINKS HERE
+    // ------------------------------------------------------------------
+    const treeData = {
+        root: '~',
+        categories: [
+            {
+                name: 'Social',
+                links: [
+                    { name: 'Reddit', url: 'https://www.reddit.com/' },
+                    { name: 'Twitter / X', url: 'https://www.twitter.com/' },
+                    { name: 'YouTube', url: 'https://www.youtube.com/' }
+                ]
+            },
+            {
+                name: 'News',
+                links: [
+                    { name: 'Hacker News', url: 'https://news.ycombinator.com/' },
+                    { name: 'BBC News', url: 'https://www.bbc.com/news' }
+                ]
+            },
+            {
+                name: 'Dev',
+                links: [
+                    { name: 'GitHub', url: 'https://www.github.com/' },
+                    { name: 'Stack Overflow', url: 'https://stackoverflow.com/' },
+                    { name: 'MDN Web Docs', url: 'https://developer.mozilla.org/en-US/' }
+                ]
+            },
+            {
+                name: 'Tools',
+                links: [
+                    { name: 'Gmail', url: 'https://mail.google.com/' },
+                    { name: 'GCal', url: 'https://calendar.google.com/' },
+                    { name: 'ChatGPT', url: 'https://chat.openai.com/' }
+                ]
+            }
+        ]
+    };
+
+    // ------------------------------------------------------------------
+    // 2. SEARCH ENGINE CONFIG
+    // ------------------------------------------------------------------
+    const searchEngines = [
+        { 
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`,
+            url: "https://www.google.com/search", 
+            queryParam: "q", 
+            placeholder: "Search Google..." 
+        },
+        { 
+            icon: `λ`,
+            isLambda: true,
+            url: "https://hoogle.haskell.org/", 
+            queryParam: "hoogle", 
+            placeholder: "Search Hoogle..." 
+        },
+        { 
+            icon: `D`,
+            isLambda: true,
+            url: "https://duckduckgo.com/", 
+            queryParam: "q", 
+            placeholder: "Search DuckDuckGo..." 
+        },
+        { 
+            icon: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M 8 5 V 19 L 19 12 L 8 5"></path></svg>`,
+            url: "https://www.youtube.com/results", 
+            queryParam: "search_query", 
+            placeholder: "Search YouTube..." 
+        },
+        { 
+            icon: `B`,
+            isLambda: true,
+            url: "https://www.bing.com/search", 
+            queryParam: "q", 
+            placeholder: "Search Bing..." 
+        }
+    ];
+
+    // ------------------------------------------------------------------
+    // 3. PAGE LOGIC (No need to edit below)
+    // ------------------------------------------------------------------
+
+    let isEditMode = false;
+    let originalTreeDataOnEdit = null; // To store data for "Cancel"
+    const treeContainer = document.getElementById("tree-container");
+
+    // --- Search Logic ---
+    let currentEngineIndex = 0;
+    const searchForm = document.querySelector(".search-form");
+    const searchInput = document.getElementById("search-input");
+    const engineToggleButton = document.getElementById("search-engine-toggle");
+
+    function updateSearchEngine(index) {
+        const engine = searchEngines[index];
+        searchForm.action = engine.url;
+        searchInput.name = engine.queryParam;
+        searchInput.placeholder = engine.placeholder;
+        engineToggleButton.innerHTML = engine.icon;
+        engineToggleButton.classList.toggle("is-lambda", !!engine.isLambda);
+    }
+
+    engineToggleButton.addEventListener("click", () => {
+        currentEngineIndex = (currentEngineIndex + 1) % searchEngines.length;
+        updateSearchEngine(currentEngineIndex);
+        searchInput.focus();
+    });
+
+    // --- Edit Mode Logic ---
+    const editBtn = document.getElementById("edit-toggle-btn");
+    const saveBtn = document.getElementById("save-toggle-btn");
+    const cancelBtn = document.getElementById("cancel-edit-btn");
+    const editControls = document.querySelector(".edit-controls"); // Get the controls container
+
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+
+        if (isEditMode) {
+            // Entering edit mode: store a deep copy of the current data
+            originalTreeDataOnEdit = JSON.parse(JSON.stringify(treeData));
+        } else {
+            // Exiting edit mode: clear the backup
+            originalTreeDataOnEdit = null;
+        }
+        
+        document.body.classList.toggle("edit-mode", isEditMode);
+        renderTree(); // Re-render to show/hide edit elements and attach listeners
+    }
+    
+    function cancelEdit() {
+        if (originalTreeDataOnEdit) {
+            // Restore the data from backup
+            // We can't just assign, as treeData is const
+            const restoredData = originalTreeDataOnEdit;
+            treeData.root = restoredData.root;
+            treeData.categories = restoredData.categories;
+        }
+        // Now toggle (which will set isEditMode to false)
+        toggleEditMode();
+    }
+
+    function savePage() {
+        // Find the original script data block and replace it
+        const currentHtml = document.documentElement.outerHTML;
+        
+        // Create a clean data string
+        const newDataString = `const treeData = ${JSON.stringify(treeData, null, 4)};`;
+        
+        // This regex finds the treeData object
+        const regex = /const treeData = \{[\s\S]*?};/m;
+        
+        if (!regex.test(currentHtml)) {
+            console.error("Could not find treeData object in HTML to save.");
+            // A simple message for the user.
+            const errorModal = document.createElement('div');
+            errorModal.textContent = 'Error: Could not save page. See console.';
+            errorModal.style.cssText = 'position:fixed; top:10px; left:10px; padding:10px; background:red; color:white; z-index: 2000;';
+            document.body.appendChild(errorModal);
+            setTimeout(() => document.body.removeChild(errorModal), 3000);
+            return;
+        }
+
+        let newHtml = currentHtml.replace(regex, newDataString);
+
+        // --- FIX ---
+        // Remove the "edit-mode" class from the body tag in the saved HTML string
+        // so the downloaded file doesn't load *in* edit mode by default.
+        const finalHtml = newHtml.replace('class="edit-mode"', 'class=""');
+        // --- END FIX ---
+
+        // Create a blob and trigger download
+        const blob = new Blob([finalHtml], { type: 'text/html' }); // Use finalHtml
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'startpage.html';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // Exit edit mode after saving
+        toggleEditMode();
+    }
+
+    editBtn.addEventListener("click", toggleEditMode);
+    saveBtn.addEventListener("click", savePage);
+    cancelBtn.addEventListener("click", cancelEdit);
+
+    // --- Tree Generation & Editing ---
+    
+    /**
+     * Creates a minimal text input for inline editing
+     */
+    function createInlineEditor(currentValue, onSave) {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "edit-input";
+        input.value = currentValue;
+        
+        // Auto-size input
+        input.style.width = `${currentValue.length + 1}ch`;
+        input.addEventListener('input', () => {
+            input.style.width = `${input.value.length + 1}ch`;
+        });
+        
+        // Save on blur (unfocus)
+        input.addEventListener("blur", () => {
+            onSave(input.value);
+            renderTree(); // Re-render the whole tree
+        });
+
+        // Save on 'Enter' key
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                input.blur();
+            } else if (e.key === "Escape") {
+                // To cancel, we just re-render without saving
+                renderTree();
+            }
+        });
+
+        return input;
+    }
+
+    /**
+     * Generates the HTML for the tree structure from the treeData object
+     */
+    function renderTree() {
+        // Clear the container
+        treeContainer.innerHTML = '';
+
+        // 1. Root
+        const rootSpan = document.createElement("span");
+        rootSpan.className = "root";
+        rootSpan.textContent = treeData.root;
+        treeContainer.appendChild(rootSpan);
+
+        // Add "Add Category" button
+        const addCatBtn = document.createElement("button");
+        addCatBtn.className = "edit-btn edit-btn-plus";
+        addCatBtn.textContent = "[+]";
+        addCatBtn.title = "Add Category";
+        addCatBtn.onclick = () => {
+            treeData.categories.push({ name: "New Category", links: [] });
+            renderTree();
+        };
+        treeContainer.appendChild(addCatBtn);
+        treeContainer.appendChild(document.createTextNode("\n"));
+
+        // 2. Categories
+        const categoryCount = treeData.categories.length;
+        treeData.categories.forEach((category, catIndex) => {
+            const isLastCategory = catIndex === categoryCount - 1;
+            const categoryPrefix = isLastCategory ? '└──' : '├──';
+            const linkBranchPrefix = isLastCategory ? '    ' : '│   ';
+            
+            const catLine = document.createElement('span');
+
+            // Branch
+            const catBranch = document.createElement("span");
+            catBranch.className = "tree-branch";
+            catBranch.textContent = `${categoryPrefix} `;
+            catLine.appendChild(catBranch);
+
+            // Name
+            const catName = document.createElement("span");
+            catName.className = "category editable-name";
+            catName.textContent = category.name;
+            if (isEditMode) {
+                catName.onclick = () => {
+                    const input = createInlineEditor(category.name, (newValue) => {
+                        treeData.categories[catIndex].name = newValue;
+                    });
+                    catName.replaceWith(input);
+                    input.focus();
+                };
+            }
+            catLine.appendChild(catName);
+            
+            // Edit buttons
+            const addLinkBtn = document.createElement("button");
+            addLinkBtn.className = "edit-btn edit-btn-plus";
+            addLinkBtn.textContent = "[+]";
+            addLinkBtn.title = "Add Link";
+            addLinkBtn.onclick = () => {
+                treeData.categories[catIndex].links.push({ name: "New Link", url: "#" });
+                renderTree();
+            };
+            catLine.appendChild(addLinkBtn);
+            
+            const remCatBtn = document.createElement("button");
+            remCatBtn.className = "edit-btn edit-btn-minus";
+            remCatBtn.textContent = "[-]";
+            remCatBtn.title = "Remove Category";
+            remCatBtn.onclick = () => {
+                treeData.categories.splice(catIndex, 1);
+                renderTree();
+            };
+            catLine.appendChild(remCatBtn);
+
+            treeContainer.appendChild(catLine);
+            treeContainer.appendChild(document.createTextNode("\n"));
+
+            // 3. Links
+            const linkCount = category.links.length;
+            category.links.forEach((link, linkIndex) => {
+                const isLastLink = linkIndex === linkCount - 1;
+                const linkPrefix = isLastLink ? '└──' : '├──';
+                
+                const linkLine = document.createElement('span');
+                
+                // Branch
+                const linkBranch = document.createElement("span");
+                linkBranch.className = "tree-branch";
+                linkBranch.textContent = `  ${linkPrefix} `;
+                linkLine.appendChild(document.createTextNode(linkBranchPrefix));
+                linkLine.appendChild(linkBranch);
+
+                // Name (Link)
+                const linkName = document.createElement("a");
+                linkName.href = link.url;
+                linkName.target = "_blank";
+                linkName.rel = "noopener noreferrer";
+                linkName.textContent = link.name;
+                
+                if (isEditMode) {
+                    linkName.classList.add("editable-name");
+                    linkName.onclick = (e) => {
+                        e.preventDefault(); // Stop navigation in edit mode
+                        
+                        // --- HIDE PAGE CONTROLS ---
+                        if (editControls) editControls.style.display = 'none';
+
+                        // Create the modal
+                        const promptModal = document.createElement('div');
+                        promptModal.style.cssText = 'position:fixed; top:10px; left:10px; right:10px; padding:20px; background:var(--bg); border:1px solid var(--border); z-index: 2000; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);';
+                        
+                        promptModal.innerHTML = `
+                            <div style="font-weight:bold; margin-bottom:10px;">Edit Link</div>
+                            <div style="margin-bottom:5px;">Name:</div>
+                            <input type="text" id="prompt-name" value="${link.name}" style="width:100%; background:var(--input-bg); color:var(--fg); border:1px solid var(--border); padding:8px; border-radius:4px; box-sizing: border-box;">
+                            <div style="margin-top:10px; margin-bottom:5px;">URL:</div>
+                            <input type="text" id="prompt-url" value="${link.url}" style="width:100%; background:var(--input-bg); color:var(--fg); border:1px solid var(--border); padding:8px; border-radius:4px; box-sizing: border-box;">
+                            <div style="margin-top:15px; display:flex; gap:10px; justify-content:flex-end;">
+                                <button id="prompt-cancel" style="background:var(--input-bg); color:var(--fg); border:1px solid var(--border); padding: 8px 12px; border-radius:4px; cursor:pointer;">Cancel</button>
+                                <button id="prompt-save" style="background:var(--link); color:var(--bg); border:none; padding: 8px 12px; border-radius:4px; cursor:pointer;">Save</button>
+                            </div>
+                        `;
+                        
+                        document.body.appendChild(promptModal);
+                        document.getElementById('prompt-name').focus(); // Focus the first input
+                        
+                        // --- Modal close logic ---
+                        const closeModal = () => {
+                            document.body.removeChild(promptModal);
+                            // --- SHOW PAGE CONTROLS ---
+                            if (editControls) editControls.style.display = 'flex';
+                            renderTree(); // Re-render to remove focus state
+                        };
+
+                        document.getElementById('prompt-save').onclick = () => {
+                            const newName = document.getElementById('prompt-name').value;
+                            const newUrl = document.getElementById('prompt-url').value;
+                            
+                            treeData.categories[catIndex].links[linkIndex].name = newName;
+                            treeData.categories[catIndex].links[linkIndex].url = newUrl;
+                            
+                            closeModal();
+                        };
+                        
+                        document.getElementById('prompt-cancel').onclick = () => {
+                            closeModal();
+                        };
+                    };
+                }
+                linkLine.appendChild(linkName);
+
+                // Edit buttons
+                const remLinkBtn = document.createElement("button");
+                remLinkBtn.className = "edit-btn edit-btn-minus";
+                remLinkBtn.textContent = "[-]";
+                remLinkBtn.title = "Remove Link";
+                remLinkBtn.onclick = () => {
+                    treeData.categories[catIndex].links.splice(linkIndex, 1);
+                    renderTree();
+                };
+                linkLine.appendChild(remLinkBtn);
+
+                treeContainer.appendChild(linkLine);
+                treeContainer.appendChild(document.createTextNode("\n"));
+            });
+
+            // Spacer
+            if (!isLastCategory) {
+                const spacer = document.createElement("span");
+                spacer.textContent = "│";
+                treeContainer.appendChild(spacer);
+                treeContainer.appendChild(document.createTextNode("\n"));
+            }
+        });
+    }
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Set the initial search engine
+        updateSearchEngine(currentEngineIndex);
+        
+        // 2. Build and render the tree
+        renderTree();
+        
+        // 3. Focus the search input
+        // searchInput.focus();
+    });
+
+</script>
+
+</body>
+</html>
+
+
