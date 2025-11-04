@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
-    <meta name=”color-scheme” content=”light dark”>
+    <meta name="”color-scheme”" content="”light" dark”="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Startpage</title>
     <style>
@@ -258,12 +256,12 @@
 <body class="">
 
 <form class="search-form" action="https://www.google.com/search" method="GET" target="_blank" rel="noopener noreferrer">
-    <button type="button" id="search-engine-toggle"></button>
-    <input type="text" id="search-input" name="q" autocomplete="off">
+    <button type="button" id="search-engine-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+    <input type="text" id="search-input" name="q" autocomplete="off" placeholder="Search Google...">
 </form>
 
 <!-- Edit/Save Buttons -->
-<div class="edit-controls">
+<div class="edit-controls" style="display: flex;">
     <button id="edit-toggle-btn" title="Edit Page">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
     </button>
@@ -280,48 +278,139 @@
   This <pre> tag is now a container.
   The JavaScript will build the tree and inject it here.
 -->
-<pre id="tree-container"></pre>
+<pre id="tree-container"><span class="root">~</span><button class="edit-btn edit-btn-plus" title="Add Category">[+]</button>
+<span><span class="tree-branch">├── </span><span class="category editable-name">Social</span><button class="edit-btn edit-btn-plus" title="Add Link">[+]</button><button class="edit-btn edit-btn-minus" title="Remove Category">[-]</button></span>
+<span>│   <span class="tree-branch">  ├── </span><a href="https://www.reddit.com/" target="_blank" rel="noopener noreferrer" class="editable-name">Reddit</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│   <span class="tree-branch">  ├── </span><a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="editable-name">Instagram</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│   <span class="tree-branch">  └── </span><a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="editable-name">YouTube</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│</span>
+<span><span class="tree-branch">├── </span><span class="category editable-name">News</span><button class="edit-btn edit-btn-plus" title="Add Link">[+]</button><button class="edit-btn edit-btn-minus" title="Remove Category">[-]</button></span>
+<span>│   <span class="tree-branch">  ├── </span><a href="https://news.ycombinator.com/" target="_blank" rel="noopener noreferrer" class="editable-name">Hacker News</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│   <span class="tree-branch">  └── </span><a href="https://www.bbc.com/news" target="_blank" rel="noopener noreferrer" class="editable-name">BBC News</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│</span>
+<span><span class="tree-branch">├── </span><span class="category editable-name">Fun</span><button class="edit-btn edit-btn-plus" title="Add Link">[+]</button><button class="edit-btn edit-btn-minus" title="Remove Category">[-]</button></span>
+<span>│   <span class="tree-branch">  ├── </span><a href="https://www.xkcd.com/" target="_blank" rel="noopener noreferrer" class="editable-name">xkcd</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│   <span class="tree-branch">  ├── </span><a href="https://www.reddit.com/r/memes/" target="_blank" rel="noopener noreferrer" class="editable-name">Memes</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│   <span class="tree-branch">  └── </span><a href="https://www.reddit.com/r/unixporn" target="_blank" rel="noopener noreferrer" class="editable-name">Unixp0rn</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│</span>
+<span><span class="tree-branch">├── </span><span class="category editable-name">Tools</span><button class="edit-btn edit-btn-plus" title="Add Link">[+]</button><button class="edit-btn edit-btn-minus" title="Remove Category">[-]</button></span>
+<span>│   <span class="tree-branch">  ├── </span><a href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" class="editable-name">ChatGPT</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│   <span class="tree-branch">  └── </span><a href="https://screensy.marijn.it/#hadouken" target="_blank" rel="noopener noreferrer" class="editable-name">Screensy</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│</span>
+<span><span class="tree-branch">├── </span><span class="category editable-name">Docs</span><button class="edit-btn edit-btn-plus" title="Add Link">[+]</button><button class="edit-btn edit-btn-minus" title="Remove Category">[-]</button></span>
+<span>│   <span class="tree-branch">  ├── </span><a href="https://docs.python.org" target="_blank" rel="noopener noreferrer" class="editable-name">Python Docs</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│   <span class="tree-branch">  ├── </span><a href="https://wiki.archlinux.org/" target="_blank" rel="noopener noreferrer" class="editable-name">Archwiki</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│   <span class="tree-branch">  └── </span><a href="https://archive.org/" target="_blank" rel="noopener noreferrer" class="editable-name">Internet Archive</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>│</span>
+<span><span class="tree-branch">└── </span><span class="category editable-name">Algorithms</span><button class="edit-btn edit-btn-plus" title="Add Link">[+]</button><button class="edit-btn edit-btn-minus" title="Remove Category">[-]</button></span>
+<span>    <span class="tree-branch">  ├── </span><a href="https://neetcode.com/practice" target="_blank" rel="noopener noreferrer" class="editable-name">Neetcode</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>    <span class="tree-branch">  ├── </span><a href="https://leetcode.com/problems" target="_blank" rel="noopener noreferrer" class="editable-name">Leetcode</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+<span>    <span class="tree-branch">  └── </span><a href="https://www.adventofcode.com/" target="_blank" rel="noopener noreferrer" class="editable-name">Advent of Code</a><button class="edit-btn edit-btn-minus" title="Remove Link">[-]</button></span>
+</pre>
 
 <script>
     // ------------------------------------------------------------------
     // 1. EDIT YOUR LINKS HERE
     // ------------------------------------------------------------------
     const treeData = {
-        root: '~',
-        categories: [
-            {
-                name: 'Social',
-                links: [
-                    { name: 'Reddit', url: 'https://www.reddit.com/' },
-                    { name: 'Twitter / X', url: 'https://www.twitter.com/' },
-                    { name: 'YouTube', url: 'https://www.youtube.com/' }
-                ]
-            },
-            {
-                name: 'News',
-                links: [
-                    { name: 'Hacker News', url: 'https://news.ycombinator.com/' },
-                    { name: 'BBC News', url: 'https://www.bbc.com/news' }
-                ]
-            },
-            {
-                name: 'Dev',
-                links: [
-                    { name: 'GitHub', url: 'https://www.github.com/' },
-                    { name: 'Stack Overflow', url: 'https://stackoverflow.com/' },
-                    { name: 'MDN Web Docs', url: 'https://developer.mozilla.org/en-US/' }
-                ]
-            },
-            {
-                name: 'Tools',
-                links: [
-                    { name: 'Gmail', url: 'https://mail.google.com/' },
-                    { name: 'GCal', url: 'https://calendar.google.com/' },
-                    { name: 'ChatGPT', url: 'https://chat.openai.com/' }
-                ]
-            }
-        ]
-    };
+    "root": "~",
+    "categories": [
+        {
+            "name": "Social",
+            "links": [
+                {
+                    "name": "Reddit",
+                    "url": "https://www.reddit.com/"
+                },
+                {
+                    "name": "Instagram",
+                    "url": "https://www.instagram.com/"
+                },
+                {
+                    "name": "YouTube",
+                    "url": "https://www.youtube.com/"
+                }
+            ]
+        },
+        {
+            "name": "News",
+            "links": [
+                {
+                    "name": "Hacker News",
+                    "url": "https://news.ycombinator.com/"
+                },
+                {
+                    "name": "BBC News",
+                    "url": "https://www.bbc.com/news"
+                }
+            ]
+        },
+        {
+            "name": "Fun",
+            "links": [
+                {
+                    "name": "xkcd",
+                    "url": "https://www.xkcd.com/"
+                },
+                {
+                    "name": "Memes",
+                    "url": "https://www.reddit.com/r/memes/"
+                },
+                {
+                    "name": "Unixp0rn",
+                    "url": "https://www.reddit.com/r/unixporn"
+                }
+            ]
+        },
+        {
+            "name": "Tools",
+            "links": [
+                {
+                    "name": "ChatGPT",
+                    "url": "https://chat.openai.com/"
+                },
+                {
+                    "name": "Screensy",
+                    "url": "https://screensy.marijn.it/#hadouken"
+                }
+            ]
+        },
+        {
+            "name": "Docs",
+            "links": [
+                {
+                    "name": "Python Docs",
+                    "url": "https://docs.python.org"
+                },
+                {
+                    "name": "Archwiki",
+                    "url": "https://wiki.archlinux.org/"
+                },
+                {
+                    "name": "Internet Archive",
+                    "url": "https://archive.org/"
+                }
+            ]
+        },
+        {
+            "name": "Algorithms",
+            "links": [
+                {
+                    "name": "Neetcode",
+                    "url": "https://neetcode.com/practice"
+                },
+                {
+                    "name": "Leetcode",
+                    "url": "https://leetcode.com/problems"
+                },
+                {
+                    "name": "Advent of Code",
+                    "url": "https://www.adventofcode.com/"
+                }
+            ]
+        }
+    ]
+};
 
     // ------------------------------------------------------------------
     // 2. SEARCH ENGINE CONFIG
@@ -702,7 +791,8 @@
 
 </script>
 
-</body>
-</html>
 
 
+
+
+</body></html>
